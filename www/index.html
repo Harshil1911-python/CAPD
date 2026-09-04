@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <title>Capacitor Plugins Demo</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
+  <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="app-header">
+      <h1>⚡ Capacitor Plugins Demo</h1>
+      <p class="subtitle">Workable demos of native device features</p>
+      <div id="platform-badge" class="badge">Web</div>
+    </header>
+
+    <main id="main-content">
+      <!-- Dynamic cards injected by app.js -->
+    </main>
+
+    <div id="output-panel" class="output-panel hidden">
+      <div class="output-header">
+        <span>Output / Logs</span>
+        <button id="clear-output" class="btn-small">Clear</button>
+      </div>
+      <pre id="output"></pre>
+    </div>
+
+    <footer class="app-footer">
+      <p>Built with Capacitor + Vanilla JS + IndexedDB</p>
+      <p>Deploy via GitHub Actions → APK</p>
+    </footer>
+  </div>
+
+  <!-- Capacitor core is injected at runtime on native; for web we polyfill lightly -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
