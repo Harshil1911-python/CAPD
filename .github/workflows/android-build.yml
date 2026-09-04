@@ -11,6 +11,7 @@ jobs:
   build:
     name: Build Debug APK
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout
@@ -20,7 +21,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: "npm"
 
       - name: Setup Java
         uses: actions/setup-java@v5
@@ -28,10 +28,28 @@ jobs:
           distribution: "temurin"
           java-version: "17"
 
-      - name: Install dependencies
+      - name: Install dependencies (with retry)
         run: |
-          npm install -g npm@10
-          npm install --no-audit --no-fund
+          set -e
+          npm config set maxsockets 3
+          npm config set fetch-retries 5
+          npm config set fetch-retry-mintimeout 20000
+          npm config set fetch-retry-maxtimeout 120000
+
+          for i in 1 2 3; do
+            echo "=== npm install attempt $i ==="
+            if npm install --no-audit --no-fund --no-optional; then
+              echo "npm install succeeded"
+              exit 0
+            fi
+            echo "npm install failed (attempt $i). Cleaning and retrying..."
+            rm -rf node_modules
+            npm cache clean --force || true
+            sleep 5
+          done
+
+          echo "All npm install attempts failed"
+          exit 1
 
       - name: Add Android platform
         run: npx cap add android
