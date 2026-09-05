@@ -1,0 +1,14 @@
+node_modules/
+android/
+ios/
+.DS_Store
+*.log
+*.apk
+*.aab
+.gradle/
+build/
+.idea/
+*.jks
+.capacitor/
+dist/
+.env

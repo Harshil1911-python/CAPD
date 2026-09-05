@@ -3,15 +3,13 @@ name: Build Android APK
 on:
   push:
     branches: [main, master]
-  pull_request:
-    branches: [main, master]
   workflow_dispatch:
 
 jobs:
   build:
     name: Build Debug APK
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 25
 
     steps:
       - name: Checkout
@@ -28,42 +26,31 @@ jobs:
           distribution: "temurin"
           java-version: "17"
 
-      - name: Install dependencies (with retry)
+      - name: Enable pnpm
         run: |
-          set -e
-          npm config set maxsockets 3
-          npm config set fetch-retries 5
-          npm config set fetch-retry-mintimeout 20000
-          npm config set fetch-retry-maxtimeout 120000
+          corepack enable
+          corepack prepare pnpm@9.15.0 --activate
+          pnpm --version
 
-          for i in 1 2 3; do
-            echo "=== npm install attempt $i ==="
-            if npm install --no-audit --no-fund --no-optional; then
-              echo "npm install succeeded"
-              exit 0
-            fi
-            echo "npm install failed (attempt $i). Cleaning and retrying..."
-            rm -rf node_modules
-            npm cache clean --force || true
-            sleep 5
-          done
-
-          echo "All npm install attempts failed"
-          exit 1
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
 
       - name: Add Android platform
-        run: npx cap add android
+        run: pnpm exec cap add android
 
       - name: Sync Capacitor
-        run: npx cap sync android
+        run: pnpm exec cap sync android
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
 
       - name: Build Debug APK
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon --parallel
 
-      - name: Upload APK artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: android/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
